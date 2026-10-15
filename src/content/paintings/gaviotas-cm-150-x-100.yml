@@ -1,9 +1,9 @@
 image: /src/assets/uploads/cuadro-gaviotas-mdq.webp
-title: 'Gaviotas'
+title: Gaviotas
 year: '2024'
-size: '150 × 100 cm'
+size: 150 × 100 cm
 technique: ''
 technique_other: ''
 sold: false
 period: the-blue-years
-featured: false
+featured: true
