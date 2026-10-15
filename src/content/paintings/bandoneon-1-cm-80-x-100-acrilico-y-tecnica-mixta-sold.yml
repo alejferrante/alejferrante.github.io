@@ -1,9 +1,9 @@
 image: /src/assets/uploads/bandoneon1.webp
-title: 'Bandoneón I'
+title: Bandoneón I
 year: '2005'
-size: '80 × 100 cm'
-technique: 'acrylic-mixed'
+size: 80 × 100 cm
+technique: acrylic-mixed
 technique_other: ''
 sold: true
 period: tango
-featured: false
+featured: true
