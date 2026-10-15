@@ -1,9 +1,9 @@
 image: /src/assets/uploads/ventarron-entero.webp
-title: 'Ventarrón'
+title: Ventarrón
 year: '2006'
-size: '200 × 100 cm'
+size: 200 × 100 cm
 technique: ''
 technique_other: ''
 sold: true
 period: tango
-featured: false
+featured: true
