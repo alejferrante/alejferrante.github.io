@@ -51,7 +51,7 @@ Il sito è fatto con **Astro**, uno strumento che trasforma questi file in pagin
 |---|---|
 | Dominio | **www.alejandroferrante.it** |
 | Utente GitHub | **alejferrante** |
-| Nome del repository | **alejandroferrante** (va usato esattamente questo, vedi 4.3) |
+| Nome del repository | **alejferrante.github.io** (va usato esattamente questo: così il sito di prova è su https://alejferrante.github.io) |
 
 Questi valori sono già scritti in `astro.config.mjs`, `public/CNAME` e `public/admin/config.yml`. Se un giorno cambiassi nome utente o repository, vanno aggiornati lì.
 
@@ -79,9 +79,9 @@ Il dominio oggi mostra il vecchio sito ospitato da Aruba. Quando cambierai i DNS
 2. Ti dirà che non è ancora un repository: premi **create a repository** (o *Initialize Git repository*). Lascia nome e opzioni come sono e conferma.
 3. In basso a sinistra scrivi un messaggio, per esempio `Prima versione del sito`, e premi **Commit to main**.
 4. In alto premi **Publish repository**:
-   - nome: **`alejandroferrante`**, esattamente così: il pannello /admin cerca questo nome
+   - nome: **`alejferrante.github.io`**, esattamente così: il pannello /admin cerca questo nome
    - **togli la spunta "Keep this code private"**. Su un account gratuito GitHub Pages funziona solo con repository pubblici. Non è un problema: contiene solo il sito, che è comunque pubblico.
-5. Fatto: su https://github.com/alejferrante/alejandroferrante vedi tutti i file.
+5. Fatto: su https://github.com/alejferrante/alejferrante.github.io vedi tutti i file. Il sito di prova è su https://alejferrante.github.io e il pannello su https://alejferrante.github.io/admin
 
 > **Commit** = un salvataggio con una descrizione. **Push/Publish** = mandare i salvataggi su GitHub.
 

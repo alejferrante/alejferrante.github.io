@@ -2,13 +2,13 @@
 #  Pannello di amministrazione del sito (Sveltia CMS)
 #  Indirizzo: https://<tuo-dominio>/admin
 #
-#  Repository GitHub: alejferrante/alejandroferrante
+#  Repository GitHub: alejferrante/alejferrante.github.io
 #  Dominio: www.alejandroferrante.it
 # =====================================================================
 
 backend:
   name: github
-  repo: alejferrante/alejandroferrante
+  repo: alejferrante/alejferrante.github.io
   branch: main
 
 site_url: https://www.alejandroferrante.it
