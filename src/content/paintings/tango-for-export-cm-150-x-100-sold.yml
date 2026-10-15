@@ -1,9 +1,9 @@
 image: /src/assets/uploads/tango-for-export-foto.webp
-title: 'Tango for Export'
+title: Tango for Export
 year: '2010'
-size: '150 × 100 cm'
+size: 150 × 100 cm
 technique: ''
 technique_other: ''
 sold: true
 period: tango
-featured: false
+featured: true
