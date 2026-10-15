@@ -1,0 +1,58 @@
+---
+import Base from '../../layouts/Base.astro';
+import Zoomable from '../../components/Zoomable.astro';
+import { langPaths, t, type Lang } from '../../i18n/ui';
+import { img, pageShown, settings } from '../../lib/data';
+
+// Se nel pannello la pagina Stampa è spenta, non viene creata (e sparisce dal menu).
+export async function getStaticPaths() {
+  return (await pageShown('press')) ? langPaths() : [];
+}
+const { lang } = Astro.props as { lang: Lang };
+const data = await settings<{ items?: { image?: string; caption?: string }[] }>('press');
+const items = (data.items ?? []).map((p) => ({ ...p, image: img(p.image) })).filter((p) => p.image);
+const N = 4;
+const cols: { p: (typeof items)[number]; i: number }[][] = Array.from({ length: N }, () => []);
+items.forEach((p, i) => cols[i % N].push({ p, i }));
+---
+
+<Base lang={lang} path="press" title={t(lang, 'press')}>
+  <div class="wrap">
+    <div class="page-head">
+      <h1>{t(lang, 'press')}</h1>
+      <p>{t(lang, 'pressIntro')}</p>
+    </div>
+    <div class="masonry press">
+      {
+        cols.map((col) => (
+          <div class="col">
+            {col.map(({ p, i }) => (
+              <Zoomable
+                src={p.image!}
+                alt={p.caption || `${t(lang, 'press')} ${i + 1}`}
+                gallery="press"
+                index={i}
+                meta={p.caption ?? ''}
+                caption={!!p.caption}
+                sizes="(max-width: 760px) 100vw, 25vw"
+                style={`--i:${i}`}
+              />
+            ))}
+          </div>
+        ))
+      }
+    </div>
+  </div>
+</Base>
+
+<style>
+  .press :global(.cap-year) {
+    margin-top: 10px;
+  }
+  .press {
+    gap: clamp(16px, 2vw, 28px);
+  }
+  .press :global(.col) {
+    gap: clamp(20px, 2.4vw, 32px);
+  }
+</style>

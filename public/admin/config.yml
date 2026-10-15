@@ -1,0 +1,492 @@
+# =====================================================================
+#  Pannello di amministrazione del sito (Sveltia CMS)
+#  Indirizzo: https://<tuo-dominio>/admin
+#
+#  Repository GitHub: alejferrante/alejandroferrante
+#  Dominio: www.alejandroferrante.it
+# =====================================================================
+
+backend:
+  name: github
+  repo: alejferrante/alejandroferrante
+  branch: main
+
+site_url: https://www.alejandroferrante.it
+app_title: Alejandro Juan Ferrante — Amministrazione
+logo:
+  src: /favicon.svg
+
+# Dove finiscono le foto caricate. Vengono rimpicciolite e convertite in un
+# formato leggero (WebP) automaticamente, così il sito resta veloce.
+media_folder: /src/assets/uploads
+public_folder: /src/assets/uploads
+media_libraries:
+  default:
+    config:
+      max_file_size: 52428800 # 50 MB per foto
+      slugify_filename: true
+      transformations:
+        raster_image:
+          format: webp
+          quality: 88
+          width: 3000
+          height: 3000
+
+slug:
+  encoding: ascii
+  clean_accents: true
+  sanitize_replacement: '-'
+
+# ---------------------------------------------------------------------
+#  Pagine e impostazioni (compaiono direttamente nel menu a sinistra)
+# ---------------------------------------------------------------------
+singletons:
+  - name: home
+    label: Home
+    icon: home
+    file: src/content/settings/home.yml
+    editor: { preview: false }
+    fields:
+      - name: image
+        label: Quadro a tutto schermo
+        widget: image
+        hint: È la prima cosa che si vede aprendo il sito. Meglio una foto grande e orizzontale.
+      - name: focus
+        label: Parte del quadro da tenere sempre visibile
+        hint: Sugli schermi stretti (telefoni) il quadro viene tagliato ai lati. Scegli quale parte non deve mai sparire.
+        widget: select
+        default: center
+        options:
+          - { label: Centro, value: center }
+          - { label: In alto, value: top }
+          - { label: In basso, value: bottom }
+          - { label: Sinistra, value: left }
+          - { label: Destra, value: right }
+          - { label: In alto a sinistra, value: top-left }
+          - { label: In alto a destra, value: top-right }
+          - { label: In basso a sinistra, value: bottom-left }
+          - { label: In basso a destra, value: bottom-right }
+      - name: name_color
+        label: Colore del nome sopra il quadro
+        widget: color
+        default: '#FFFFFF'
+      - name: overlay
+        label: Velatura scura sul quadro (%)
+        hint: Scurisce leggermente il quadro per rendere più leggibile il nome. 0 = nessuna velatura, 20 = leggera, 50 = forte.
+        widget: number
+        value_type: int
+        min: 0
+        max: 80
+        step: 5
+        default: 20
+      - name: description
+        label: Descrizione per Google e per le anteprime dei link
+        hint: Una frase breve che compare nei risultati di Google e quando si condivide il sito su WhatsApp o sui social.
+        widget: object
+        collapsed: true
+        fields:
+          - { name: en, label: Inglese (EN), widget: string }
+          - { name: it, label: Italiano (IT), widget: string, required: false }
+          - { name: es, label: Spagnolo (ES), widget: string, required: false }
+
+  - name: biography
+    label: Biografia
+    icon: person
+    file: src/content/settings/biography.yml
+    editor: { preview: false }
+    fields:
+      - name: photo
+        label: Foto (a sinistra del testo)
+        widget: image
+        required: false
+      - name: text
+        label: Testo della biografia
+        hint: 'Scrivi la versione inglese per prima: se manca una traduzione, il sito mostra quella inglese.'
+        widget: object
+        fields:
+          - name: en
+            label: Inglese (EN)
+            widget: richtext
+            modes: [rich_text]
+            buttons: [bold, italic, link, heading-two, heading-three, bulleted-list, numbered-list]
+            editor_components: []
+          - name: it
+            label: Italiano (IT)
+            widget: richtext
+            required: false
+            modes: [rich_text]
+            buttons: [bold, italic, link, heading-two, heading-three, bulleted-list, numbered-list]
+            editor_components: []
+          - name: es
+            label: Spagnolo (ES)
+            widget: richtext
+            required: false
+            modes: [rich_text]
+            buttons: [bold, italic, link, heading-two, heading-three, bulleted-list, numbered-list]
+            editor_components: []
+
+  - name: exhibition-history
+    label: Percorso espositivo
+    icon: history_edu
+    file: src/content/settings/exhibition-history.yml
+    editor: { preview: false }
+    fields:
+      - name: groups
+        label: Sezioni (Personali, Bi-personali, Collettive…)
+        label_singular: sezione
+        hint: Compare sotto la biografia. Dentro ogni sezione trascina le mostre per cambiarne l'ordine (di solito dalla più recente).
+        widget: list
+        collapsed: true
+        summary: '{{title.it}}'
+        fields:
+          - name: title
+            label: Nome della sezione
+            widget: object
+            fields:
+              - { name: en, label: Inglese (EN), widget: string }
+              - { name: it, label: Italiano (IT), widget: string, required: false }
+              - { name: es, label: Spagnolo (ES), widget: string, required: false }
+          - name: items
+            label: Mostre
+            label_singular: mostra
+            widget: list
+            collapsed: true
+            summary: '{{year}} · {{title}} {{venue}}'
+            fields:
+              - { name: year, label: Anno, widget: string }
+              - { name: title, label: 'Titolo della mostra (facoltativo, in corsivo)', widget: string, required: false }
+              - { name: venue, label: 'Luogo e città (es. Galleria Kappa 32, Milano)', widget: string }
+              - name: notes
+                label: Note (facoltative, es. patrocini)
+                widget: object
+                required: false
+                collapsed: true
+                fields:
+                  - { name: en, label: Inglese (EN), widget: string, required: false }
+                  - { name: it, label: Italiano (IT), widget: string, required: false }
+                  - { name: es, label: Spagnolo (ES), widget: string, required: false }
+
+  - name: exhibition
+    label: Mostre
+    icon: event
+    file: src/content/settings/exhibition.yml
+    editor: { preview: false }
+    fields:
+      - name: show
+        label: Mostra la barra con la prossima mostra
+        hint: In cima alla pagina Mostre compare una barra grande con la mostra in corso o in arrivo. Se è spento non compare nulla. Dopo la data di fine sparisce comunque da sola.
+        widget: boolean
+        default: false
+      - name: headline
+        label: Frase grande nella barra (es. il nome della mostra)
+        widget: object
+        fields:
+          - { name: en, label: Inglese (EN), widget: text, required: false }
+          - { name: it, label: Italiano (IT), widget: text, required: false }
+          - { name: es, label: Spagnolo (ES), widget: text, required: false }
+      - { name: venue, label: 'Luogo (galleria, museo…)', widget: string, required: false }
+      - { name: city, label: Città, widget: string, required: false }
+      - name: start_date
+        label: Data di inizio
+        widget: datetime
+        time_format: false
+        format: YYYY-MM-DD
+        required: false
+      - name: end_date
+        label: Data di fine
+        widget: datetime
+        time_format: false
+        format: YYYY-MM-DD
+        required: false
+      - name: link
+        label: Link per maggiori informazioni (facoltativo)
+        hint: Per esempio la pagina della mostra sul sito della galleria.
+        widget: string
+        required: false
+      - name: photos
+        label: Foto delle mostre passate
+        label_singular: foto
+        hint: Compaiono sotto la barra, con il titolo scritto piccolo sotto ogni foto. Trascina le foto per cambiarne l'ordine.
+        widget: list
+        required: false
+        collapsed: true
+        summary: '{{title}}'
+        thumbnail: image
+        fields:
+          - { name: image, label: Foto, widget: image }
+          - { name: title, label: 'Titolo sotto la foto (es. Espíritu Libre, Banca di Asti, 2024)', widget: string, required: false }
+
+  - name: books
+    label: Libri
+    icon: menu_book
+    file: src/content/settings/books.yml
+    editor: { preview: false }
+    fields:
+      - name: books
+        label: Copertine
+        label_singular: libro
+        hint: Trascina i libri per cambiarne l'ordine.
+        widget: list
+        collapsed: true
+        summary: '{{title}}'
+        thumbnail: cover
+        fields:
+          - { name: cover, label: Foto della copertina, widget: image }
+          - { name: title, label: Titolo del libro, widget: string, required: false, hint: 'Non compare sul sito, ma aiuta Google e chi usa un lettore di schermo.' }
+
+  - name: awards
+    label: Premi
+    icon: emoji_events
+    file: src/content/settings/awards.yml
+    editor: { preview: false }
+    fields:
+      - name: show
+        label: Mostra la pagina Premi sul sito
+        hint: Se è spento, la pagina Premi sparisce dal sito e dal menu (le foto restano salvate qui).
+        widget: boolean
+        default: true
+      - name: items
+        label: Premi
+        label_singular: premio
+        hint: Trascina le foto per cambiarne l'ordine.
+        widget: list
+        required: false
+        collapsed: true
+        summary: '{{title}}'
+        thumbnail: image
+        fields:
+          - { name: image, label: 'Foto del premio (attestato, targa, medaglia…)', widget: image }
+          - { name: title, label: 'Titolo sotto la foto (es. Primo premio, Milano Art Festival, 2012)', widget: string, required: false }
+
+  - name: press
+    label: Stampa
+    icon: newspaper
+    file: src/content/settings/press.yml
+    editor: { preview: false }
+    fields:
+      - name: show
+        label: Mostra la pagina Stampa sul sito
+        hint: Se è spento, la pagina Stampa sparisce dal sito e dal menu (gli articoli restano salvati qui). Riaccendilo quando vuoi.
+        widget: boolean
+        default: true
+      - name: items
+        label: Articoli
+        label_singular: articolo
+        hint: Trascina gli articoli per cambiarne l'ordine.
+        widget: list
+        collapsed: true
+        summary: '{{caption}}'
+        thumbnail: image
+        fields:
+          - { name: image, label: Foto dell'articolo, widget: image }
+          - { name: caption, label: 'Didascalia (es. Corriere della Sera, 2019)', widget: string, required: false }
+
+  - name: videos
+    label: Video
+    icon: movie
+    file: src/content/settings/videos.yml
+    editor: { preview: false }
+    fields:
+      - name: videos
+        label: Video
+        label_singular: video
+        hint: Carica prima il video su YouTube (anche come "Non in elenco"), poi incolla qui il link.
+        widget: list
+        collapsed: true
+        summary: '{{painting}}'
+        fields:
+          - name: painting
+            label: Opera mostrata accanto al video
+            widget: relation
+            collection: paintings
+            value_field: '{{slug}}'
+            search_fields: [title]
+            display_fields: ['{{title}} ({{year}})']
+            required: false
+          - name: youtube
+            label: Link di YouTube
+            widget: string
+            hint: Es. https://www.youtube.com/watch?v=… oppure https://youtu.be/…
+            required: false
+
+  - name: reviews
+    label: Critica
+    icon: format_quote
+    file: src/content/settings/reviews.yml
+    editor: { preview: false }
+    fields:
+      - name: reviews
+        label: Recensioni
+        label_singular: recensione
+        hint: Trascina le recensioni per cambiarne l'ordine.
+        widget: list
+        collapsed: true
+        summary: '{{author}}'
+        fields:
+          - { name: author, label: Autore (in grassetto sotto il testo), widget: string }
+          - { name: source, label: 'Fonte (facoltativa, es. catalogo della mostra, 2012)', widget: string, required: false }
+          - name: text
+            label: Testo
+            widget: object
+            fields:
+              - { name: en, label: Inglese (EN), widget: text }
+              - { name: it, label: Italiano (IT), widget: text, required: false }
+              - { name: es, label: Spagnolo (ES), widget: text, required: false }
+
+  - divider: true
+
+  - name: contacts
+    label: Contatti
+    icon: contact_mail
+    file: src/content/settings/contacts.yml
+    editor: { preview: false }
+    fields:
+      - { name: email, label: Email, widget: string, required: false }
+      - { name: phone, label: Telefono, widget: string, required: false }
+      - { name: instagram, label: Link Instagram, widget: string, required: false }
+      - { name: facebook, label: Link Facebook, widget: string, required: false }
+      - { name: youtube, label: Link canale YouTube (facoltativo), widget: string, required: false }
+
+  - name: navbar
+    label: Barra in alto
+    icon: palette
+    file: src/content/settings/navbar.yml
+    editor: { preview: false }
+    fields:
+      - name: over_painting
+        label: Sopra il quadro della home
+        hint: Come appare la barra quando si apre il sito, sopra il quadro a tutto schermo.
+        widget: object
+        fields:
+          - { name: color, label: Colore di sfondo, widget: color, default: '#161616' }
+          - name: opacity
+            label: Opacità dello sfondo (%)
+            hint: 0 = completamente trasparente, 100 = colore pieno.
+            widget: number
+            value_type: int
+            min: 0
+            max: 100
+            step: 5
+            default: 0
+          - { name: text_color, label: Colore delle scritte, widget: color, default: '#FFFFFF' }
+      - name: after_scroll
+        label: Dopo aver scorso la pagina (e nelle altre pagine)
+        widget: object
+        fields:
+          - { name: color, label: Colore di sfondo, widget: color, default: '#FAFAF8' }
+          - name: opacity
+            label: Opacità dello sfondo (%)
+            widget: number
+            value_type: int
+            min: 0
+            max: 100
+            step: 5
+            default: 96
+          - { name: text_color, label: Colore delle scritte, widget: color, default: '#161616' }
+
+# ---------------------------------------------------------------------
+#  Opere e periodi
+# ---------------------------------------------------------------------
+collections:
+  - name: paintings
+    label: Opere
+    label_singular: opera
+    icon: palette
+    description: 'Tutti i quadri del sito. Per aggiungerne uno: “Nuova opera”, carica la foto, scrivi titolo e anno, scegli il periodo e salva.'
+    folder: src/content/paintings
+    extension: yml
+    format: yaml
+    create: true
+    delete: true
+    identifier_field: title
+    slug: '{{title}}'
+    summary: '{{title}} · {{year}} · {{size}}'
+    thumbnail: image
+    sortable_fields: [title, year]
+    view_groups:
+      - { name: period, label: Periodo, field: period }
+    editor: { preview: false }
+    fields:
+      - name: image
+        label: Foto dell'opera
+        widget: image
+        hint: Una foto dritta, ben illuminata e ritagliata sui bordi del quadro.
+      - name: title
+        label: Titolo
+        widget: string
+        hint: 'Solo il nome dell''opera, nella lingua originale (non viene tradotto). Misure, tecnica e "venduto" vanno nei campi qui sotto.'
+      - name: year
+        label: Anno
+        widget: string
+        hint: Es. 1998, oppure 1998–2000.
+      - name: size
+        label: Misure
+        widget: string
+        required: false
+        hint: 'In centimetri, es. 100 x 150 (sul sito diventa "100 × 150 cm").'
+      - name: technique
+        label: Tecnica
+        widget: select
+        required: false
+        hint: Sul sito viene tradotta da sola in inglese, italiano e spagnolo. Se non è nell'elenco, lascia vuoto e usa il campo qui sotto.
+        options:
+          - { label: Acrilico su tela, value: acrylic-canvas }
+          - { label: Acrilico e tecnica mista su tela, value: acrylic-mixed-canvas }
+          - { label: Acrilico e tecnica mista, value: acrylic-mixed }
+          - { label: Acrilico su legno, value: acrylic-wood }
+      - name: technique_other
+        label: Altra tecnica (facoltativo)
+        widget: string
+        required: false
+        hint: 'Solo se la tecnica non è nel menu, es. "Olio su tela". Viene mostrata così com''è, senza traduzione, e ha la precedenza sul menu.'
+      - name: sold
+        label: Venduto
+        widget: boolean
+        default: false
+        required: false
+      - name: period
+        label: Periodo
+        widget: relation
+        collection: periods
+        value_field: '{{slug}}'
+        search_fields: [title, title_it]
+        display_fields: ['{{title_it}} ({{title}})']
+      - name: featured
+        label: Mostra in anteprima nella home
+        hint: Nella home ogni periodo mostra fino a 3 opere. Spunta quelle che vuoi vedere lì; se non ne spunti nessuna, vengono usate le prime del periodo.
+        widget: boolean
+        default: false
+        required: false
+
+  - name: periods
+    label: Periodi
+    label_singular: periodo
+    icon: view_agenda
+    description: I periodi in cui sono divise le opere nella home. Il numero “Posizione” decide l'ordine (1 = in alto).
+    folder: src/content/periods
+    extension: yml
+    format: yaml
+    create: true
+    delete: true
+    identifier_field: title
+    slug: '{{title}}'
+    summary: '{{order}}. {{title_it}} — {{title}}'
+    sortable_fields:
+      fields: [order, title]
+      default: { field: order, direction: ascending }
+    editor: { preview: false }
+    fields:
+      - name: order
+        label: Posizione nella pagina (1 = in alto)
+        widget: number
+        value_type: int
+        min: 1
+        default: 1
+      - { name: title, label: Nome del periodo in inglese (EN), widget: string }
+      - { name: title_it, label: Nome in italiano (IT), widget: string, required: false }
+      - { name: title_es, label: Nome in spagnolo (ES), widget: string, required: false }
+      - name: years
+        label: Anni
+        widget: string
+        required: false
+        hint: Es. 1985 – 1995

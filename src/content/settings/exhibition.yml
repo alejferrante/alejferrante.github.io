@@ -1,0 +1,11 @@
+show: true
+headline:
+  en: '[Your sentence about the upcoming exhibition]'
+  it: '[La tua frase sulla prossima mostra]'
+  es: '[Tu frase sobre la próxima exposición]'
+venue: '[Venue]'
+city: '[City]'
+start_date: 2026-11-14
+end_date: 2026-12-20
+link: ''
+photos: []

@@ -1,0 +1,38 @@
+show: false
+items:
+  - image: /src/assets/uploads/art-cento2.webp
+    caption: '[Newspaper, year]'
+  - image: /src/assets/uploads/art-corriere1.webp
+    caption: '[Newspaper, year]'
+  - image: /src/assets/uploads/art-corriere2.webp
+    caption: '[Newspaper, year]'
+  - image: /src/assets/uploads/art-mostra-macmiandoli.webp
+    caption: '[Newspaper, year]'
+  - image: /src/assets/uploads/art-padiglione-arg.webp
+    caption: '[Newspaper, year]'
+  - image: /src/assets/uploads/art-piazzolla.webp
+    caption: '[Newspaper, year]'
+  - image: /src/assets/uploads/art-zuca.webp
+    caption: '[Newspaper, year]'
+  - image: /src/assets/uploads/articulo-el-archit-del-tango.webp
+    caption: ''
+  - image: /src/assets/uploads/brera-art.webp
+    caption: ''
+  - image: /src/assets/uploads/giornale-cento-1.webp
+    caption: ''
+  - image: /src/assets/uploads/giornale-galleria.webp
+    caption: ''
+  - image: /src/assets/uploads/giornale-italia.webp
+    caption: ''
+  - image: /src/assets/uploads/giornale-melograno.webp
+    caption: ''
+  - image: /src/assets/uploads/giornale-reggio-emilia-desde-el-ama-muestra.webp
+    caption: ''
+  - image: /src/assets/uploads/giornale-republica-argentini.webp
+    caption: ''
+  - image: /src/assets/uploads/giornali-repubblica-tango-a-colori.webp
+    caption: ''
+  - image: /src/assets/uploads/photo-2026-06-01-20-26-17.webp
+    caption: ''
+  - image: /src/assets/uploads/prensa3.webp
+    caption: ''

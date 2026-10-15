@@ -1,0 +1,8 @@
+image: /src/assets/uploads/blue-rain-cm-150x150.webp
+focus: center
+name_color: '#faf9f9'
+overlay: 20
+description:
+  en: Painter. Paintings, exhibitions, books and critical reviews.
+  it: Pittore. Opere, mostre, libri e recensioni critiche.
+  es: Pintor. Obras, exposiciones, libros y reseñas críticas.

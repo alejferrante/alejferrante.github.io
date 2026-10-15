@@ -1,0 +1,94 @@
+---
+import Base from '../../layouts/Base.astro';
+import PhotoGrid from '../../components/PhotoGrid.astro';
+import { DATE_LOCALE, langPaths, pick, t, type Lang } from '../../i18n/ui';
+import { exhibition, formatRange, photoList } from '../../lib/data';
+
+export const getStaticPaths = langPaths;
+const { lang } = Astro.props as { lang: Lang };
+const ex = await exhibition();
+const today = new Date().toISOString().slice(0, 10);
+const label = ex.start && ex.start <= today ? t(lang, 'current') : t(lang, 'upcoming');
+const when = formatRange(ex.start, ex.end, DATE_LOCALE[lang]);
+const where = [ex.venue, ex.city].filter(Boolean).join(' · ');
+const photos = photoList(ex.photos, lang);
+---
+
+<Base lang={lang} path="exhibitions" title={t(lang, 'exhibitions')}>
+  {
+    /* Barra grande con la mostra in corso o in arrivo: compare solo se nel pannello è accesa e non è finita. */
+    ex.active && (
+      <section class="exh" data-exh-on data-end={ex.end}>
+        <div class="exh-inner">
+          <p class="eyebrow">{label}</p>
+          <h2>{pick(ex.headline, lang)}</h2>
+          {(where || when) && <p class="exh-meta">{[where, when].filter(Boolean).join(' · ')}</p>}
+          {ex.link && (
+            <a class="link-line" href={ex.link} target="_blank" rel="noopener">
+              {t(lang, 'moreInfo')} →
+            </a>
+          )}
+        </div>
+      </section>
+    )
+  }
+
+  <div class="wrap">
+    <div class:list={['page-head', { 'after-bar': ex.active }]} data-exh-head>
+      <h1>{t(lang, 'exhibitions')}</h1>
+      {photos.length > 0 && <p>{t(lang, 'pastExhibitions')} · {t(lang, 'photosIntro')}</p>}
+    </div>
+    <PhotoGrid photos={photos} gallery="exhibitions" fallbackAlt={t(lang, 'pastExhibitions')} />
+  </div>
+</Base>
+
+<style>
+  .exh {
+    background: var(--ink);
+    color: var(--paper);
+    padding-top: var(--nav-h);
+  }
+  .exh-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: clamp(72px, 10vw, 128px) var(--gutter);
+    text-align: center;
+  }
+  .exh .eyebrow {
+    color: #a79e91;
+    margin-bottom: 36px;
+  }
+  .exh h2 {
+    font-style: italic;
+    font-size: clamp(36px, 5vw, 60px);
+    line-height: 1.15;
+    margin-bottom: 32px;
+  }
+  .exh-meta {
+    font-size: 13px;
+    font-weight: 400;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: #cfc8bd;
+  }
+  .exh .link-line {
+    margin-top: 36px;
+    color: var(--paper);
+  }
+  .exh .link-line:hover {
+    opacity: 0.7;
+  }
+  /* Sotto la barra il titolo della pagina non deve lasciare lo spazio per il menu. */
+  .page-head.after-bar {
+    padding-top: clamp(48px, 7vw, 88px);
+  }
+</style>
+
+<script>
+  // Se la mostra è finita dopo l'ultima pubblicazione, la barra sparisce da sola.
+  const on = document.querySelector<HTMLElement>('[data-exh-on]');
+  if (on?.dataset.end && on.dataset.end < new Date().toISOString().slice(0, 10)) {
+    on.remove();
+    document.querySelector('[data-exh-head]')?.classList.remove('after-bar');
+  }
+</script>

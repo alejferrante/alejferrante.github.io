@@ -1,0 +1,8 @@
+over_painting:
+  color: '#161616'
+  opacity: 0
+  text_color: '#FFFFFF'
+after_scroll:
+  color: '#FAFAF8'
+  opacity: 96
+  text_color: '#161616'

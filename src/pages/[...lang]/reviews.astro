@@ -1,0 +1,77 @@
+---
+import Base from '../../layouts/Base.astro';
+import { langPaths, pick, t, type Lang } from '../../i18n/ui';
+import { settings } from '../../lib/data';
+
+export const getStaticPaths = langPaths;
+const { lang } = Astro.props as { lang: Lang };
+const data = await settings<{ reviews?: { author?: string; source?: string; text?: Record<string, string> }[] }>('reviews');
+const reviews = (data.reviews ?? []).map((r) => ({ ...r, body: pick(r.text, lang) })).filter((r) => r.body);
+---
+
+<Base lang={lang} path="reviews" title={t(lang, 'reviews')}>
+  <div class="wrap narrow">
+    <div class="page-head">
+      <h1>{t(lang, 'reviews')}</h1>
+    </div>
+    <div class="cols">
+      {
+        reviews.map((r) => (
+          <figure>
+            <blockquote>
+              {r.body.split(/\n\s*\n/).map((para) => (
+                <p>{para}</p>
+              ))}
+            </blockquote>
+            {(r.author || r.source) && (
+              <figcaption>
+                {r.author && <strong>{r.author}</strong>}
+                {r.source && <span>{r.source}</span>}
+              </figcaption>
+            )}
+          </figure>
+        ))
+      }
+    </div>
+  </div>
+</Base>
+
+<style>
+  .narrow {
+    max-width: 1200px;
+  }
+  .cols {
+    columns: 2 380px;
+    column-gap: clamp(48px, 7vw, 88px);
+  }
+  figure {
+    margin: 0 0 64px;
+    break-inside: avoid;
+  }
+  blockquote {
+    margin: 0;
+    font-family: var(--serif);
+    font-size: 22px;
+    line-height: 1.6;
+    color: var(--ink-soft);
+  }
+  blockquote p + p {
+    margin-top: 14px;
+  }
+  figcaption {
+    margin-top: 18px;
+    text-align: right;
+    font-size: 14px;
+  }
+  figcaption strong {
+    display: block;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+  }
+  figcaption span {
+    display: block;
+    color: var(--muted);
+    font-size: 13px;
+    margin-top: 2px;
+  }
+</style>

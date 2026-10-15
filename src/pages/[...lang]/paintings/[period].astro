@@ -1,0 +1,70 @@
+---
+import Base from '../../../layouts/Base.astro';
+import Zoomable from '../../../components/Zoomable.astro';
+import { LANGS, href, langParam, pick, t, type Lang } from '../../../i18n/ui';
+import { periods, workMeta, type Period } from '../../../lib/data';
+
+export async function getStaticPaths() {
+  const all = await periods();
+  return LANGS.flatMap((lang) =>
+    all.map((p, i) => ({ params: { lang: langParam(lang), period: p.slug }, props: { lang, period: p, position: i + 1 } })),
+  );
+}
+
+const { lang, period, position } = Astro.props as { lang: Lang; period: Period; position: number };
+const name = pick(period.name, lang);
+const roman = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X', 'XI', 'XII', 'XIII', 'XIV', 'XV'][position - 1] ?? String(position);
+
+// Distribuisce le opere in 3 colonne (1ª, 2ª, 3ª, poi di nuovo 1ª…) mantenendo l'ordine di lettura.
+const cols: { w: Period['works'][number]; i: number }[][] = [[], [], []];
+period.works.forEach((w, i) => cols[i % 3].push({ w, i }));
+---
+
+<Base lang={lang} path={`paintings/${period.slug}`} title={name}>
+  <div class="wrap">
+    <div class="page-head">
+      <div>
+        <a class="back" href={`${href(lang, '')}#paintings`}>← {t(lang, 'allPeriods')}</a>
+        <p class="eyebrow num">{roman}</p>
+        <h1>{name}</h1>
+      </div>
+      <p>{[period.years, `${period.works.length} ${t(lang, 'works')}`].filter(Boolean).join(' · ')}</p>
+    </div>
+
+    <div class="masonry">
+      {
+        cols.map((col) => (
+          <div class="col">
+            {col.map(({ w, i }) => (
+              <Zoomable
+                src={w.image}
+                alt={`${w.title}${w.year ? `, ${w.year}` : ''}`}
+                gallery="period"
+                index={i}
+                title={w.title}
+                meta={workMeta(w, lang)}
+                caption
+                style={`--i:${i}`}
+              />
+            ))}
+          </div>
+        ))
+      }
+    </div>
+  </div>
+</Base>
+
+<style>
+  .back {
+    display: inline-block;
+    margin-bottom: 36px;
+    font-size: 12px;
+    font-weight: 400;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .num {
+    margin-bottom: 14px;
+  }
+</style>

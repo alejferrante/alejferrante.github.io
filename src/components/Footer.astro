@@ -1,0 +1,119 @@
+---
+import { LANGS, LANG_NAMES, href, t, type Lang } from '../i18n/ui';
+import { settings } from '../lib/data';
+
+interface Props {
+  lang: Lang;
+  path: string;
+}
+const { lang, path } = Astro.props;
+const c = await settings<{ email?: string; phone?: string; instagram?: string; facebook?: string; youtube?: string }>('contacts');
+const tel = c.phone ? c.phone.replace(/[^\d+]/g, '') : '';
+const social = [
+  { label: 'Instagram', url: c.instagram },
+  { label: 'Facebook', url: c.facebook },
+  { label: 'YouTube', url: c.youtube },
+].filter((s) => s.url && !/^https?:\/\/(www\.)?(instagram|facebook|youtube)\.com\/?$/.test(s.url));
+const year = new Date().getFullYear();
+---
+
+<footer class="footer">
+  <div class="wrap top">
+    <div>
+      <p class="f-name">Alejandro Juan Ferrante</p>
+      <p class="f-sub">{t(lang, 'painter')}</p>
+    </div>
+    <div class="cols">
+      {
+        (c.email || c.phone) && (
+          <div class="col">
+            <p class="eyebrow">{t(lang, 'contact')}</p>
+            {c.email && <a href={`mailto:${c.email}`}>{c.email}</a>}
+            {c.phone && <a href={`tel:${tel}`}>{c.phone}</a>}
+          </div>
+        )
+      }
+      {
+        social.length > 0 && (
+          <div class="col">
+            <p class="eyebrow">{t(lang, 'follow')}</p>
+            {social.map((s) => (
+              <a href={s.url} target="_blank" rel="noopener">
+                {s.label}
+              </a>
+            ))}
+          </div>
+        )
+      }
+    </div>
+  </div>
+  <div class="wrap"><div class="bottom">
+    <span>© {year} Alejandro Juan Ferrante. {t(lang, 'rights')}</span>
+    <span class="langs">
+      {
+        LANGS.map((l) => (
+          <a href={href(l, path)} hreflang={l} lang={l} aria-current={l === lang ? 'true' : undefined}>
+            {LANG_NAMES[l]}
+          </a>
+        ))
+      }
+    </span>
+  </div></div>
+</footer>
+
+<style>
+  .footer {
+    border-top: 1px solid var(--line);
+    margin-top: clamp(64px, 8vw, 120px);
+  }
+  .top {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 40px 64px;
+    padding-top: clamp(56px, 7vw, 80px);
+    padding-bottom: 48px;
+  }
+  .f-name {
+    font-family: var(--serif);
+    font-size: 30px;
+    line-height: 1.2;
+    margin-bottom: 6px;
+  }
+  .f-sub {
+    font-size: 14px;
+    color: var(--muted);
+  }
+  .cols {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 40px 80px;
+  }
+  .col {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    font-size: 15px;
+  }
+  .col .eyebrow {
+    margin-bottom: 6px;
+  }
+  .bottom {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 12px 40px;
+    padding-top: 24px;
+    padding-bottom: 40px;
+    border-top: 1px solid var(--line);
+    font-size: 12px;
+    color: var(--muted);
+  }
+  .langs {
+    display: flex;
+    gap: 18px;
+  }
+  .langs a[aria-current='true'] {
+    color: var(--ink);
+  }
+</style>

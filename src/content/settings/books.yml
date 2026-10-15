@@ -1,0 +1,11 @@
+books:
+  - cover: /src/assets/uploads/libros-1-2-3-4.webp
+    title: ''
+  - cover: /src/assets/uploads/img_4516.webp
+    title: El camino del arte cm 24 x 30 N° paginas 180
+  - cover: /src/assets/uploads/img_4520.webp
+    title: Revolució y Evolución cm 30 x 30 N° paginas 64
+  - cover: /src/assets/uploads/img_4518.webp
+    title: Abstract no Abstract cm 30 x 30 N° paginas 79
+  - cover: /src/assets/uploads/ajf.webp
+    title: A J F cm 30 x 30 N° paginas 92

@@ -1,0 +1,435 @@
+---
+import { Image } from 'astro:assets';
+import { marked } from 'marked';
+import Base from '../../layouts/Base.astro';
+import { href, langPaths, pick, t, type Lang } from '../../i18n/ui';
+import { img, periods, previewWorks, settings } from '../../lib/data';
+
+export const getStaticPaths = langPaths;
+const { lang } = Astro.props as { lang: Lang };
+
+const home = await settings('home');
+const bio = await settings('biography');
+const allPeriods = await periods();
+
+const heroImg = img(home.image);
+const FOCUS: Record<string, string> = {
+  center: '50% 50%',
+  top: '50% 15%',
+  bottom: '50% 85%',
+  left: '15% 50%',
+  right: '85% 50%',
+  'top-left': '15% 15%',
+  'top-right': '85% 15%',
+  'bottom-left': '15% 85%',
+  'bottom-right': '85% 85%',
+};
+const focus = FOCUS[home.focus ?? 'center'] ?? '50% 50%';
+const overlay = Math.max(0, Math.min(80, Number(home.overlay ?? 20))) / 100;
+
+const bioPhoto = img(bio.photo);
+
+// Percorso espositivo (mostre passate), sotto la biografia
+type CvItem = { year?: string | number; title?: string; venue?: string; notes?: Record<string, string> };
+const cvData = await settings<{ groups?: { title?: Record<string, string>; items?: CvItem[] }[] }>('exhibition-history');
+const cvGroups = (cvData.groups ?? [])
+  .map((g) => ({
+    title: pick(g.title, lang),
+    items: (g.items ?? []).map((it) => ({
+      year: String(it.year ?? ''),
+      title: it.title ?? '',
+      venue: it.venue ?? '',
+      notes: pick(it.notes, lang),
+    })),
+  }))
+  .filter((g) => g.items.length);
+const bioHtml = await marked.parse(pick(bio.text, lang));
+
+const roman = (n: number) =>
+  [
+    [10, 'X'],
+    [9, 'IX'],
+    [5, 'V'],
+    [4, 'IV'],
+    [1, 'I'],
+  ].reduce((acc, [v, s]) => {
+    while (n >= (v as number)) {
+      acc += s;
+      n -= v as number;
+    }
+    return acc;
+  }, '');
+---
+
+<Base lang={lang} path="" hero>
+  <section class="hero" data-hero style={`--overlay:${overlay}`}>
+    {
+      heroImg && (
+        <Image
+          class="hero-img"
+          src={heroImg}
+          alt=""
+          widths={[960, 1440, 1920, 2560].filter((w) => w <= heroImg.width).concat(heroImg.width > 2560 ? [] : [heroImg.width])}
+          sizes="100vw"
+          format="webp"
+          quality={82}
+          loading="eager"
+          fetchpriority="high"
+          style={`object-position:${focus}`}
+        />
+      )
+    }
+    <h1 class="hero-name" style={`color:${home.name_color ?? '#FFFFFF'}`}>Alejandro Juan Ferrante</h1>
+    <a class="hero-scroll" href="#biography" style={`color:${home.name_color ?? '#FFFFFF'}`}>{t(lang, 'scroll')} ↓</a>
+  </section>
+
+  <section id="biography" class="bio wrap">
+    <p class="eyebrow">{t(lang, 'biography')}</p>
+    <div class:list={['bio-body', { 'has-photo': !!bioPhoto }]}>
+      {
+        bioPhoto && (
+          <Image
+            class="bio-photo"
+            src={bioPhoto}
+            alt="Alejandro Juan Ferrante"
+            widths={[480, 720, 960].filter((w) => w <= bioPhoto.width)}
+            sizes="(max-width: 640px) 100vw, 40vw"
+            format="webp"
+          />
+        )
+      }
+      <div class="prose" set:html={bioHtml} />
+    </div>
+
+    {
+      cvGroups.length > 0 && (
+        <div class="cv">
+          <h3>{t(lang, 'exhibitionHistory')}</h3>
+          {cvGroups.map((g) => (
+            <div class="cv-group">
+              {g.title && <p class="eyebrow">{g.title}</p>}
+              <ul>
+                {g.items.map((it) => (
+                  <li>
+                    <span class="cv-year">{it.year}</span>
+                    <span class="cv-body">
+                      {it.title && <em>{it.title}</em>}
+                      {it.title && it.venue && <span class="sep"> · </span>}
+                      {it.venue}
+                      {it.notes && <span class="cv-notes">{it.notes}</span>}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
+      )
+    }
+  </section>
+
+  <section id="paintings" class="paintings">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2>{t(lang, 'paintings')}</h2>
+        <p>
+          {t(lang, 'selectPeriod')}
+          <a class="see-all" href={href(lang, 'paintings')}>{t(lang, 'seeAllPaintings')} →</a>
+        </p>
+      </div>
+      {
+        allPeriods.map((p, i) => {
+          const works = previewWorks(p);
+          return (
+            <a class="period" href={href(lang, `paintings/${p.slug}`)}>
+              <div class="period-text">
+                <div>
+                  <p class="eyebrow">{roman(i + 1)}</p>
+                  <h3>{pick(p.name, lang)}</h3>
+                  {p.years && <p class="years">{p.years}</p>}
+                </div>
+                <span class="link-line">{t(lang, 'viewAll')} →</span>
+              </div>
+              <div class="period-works">
+                {works.map((w) => (
+                  <div class="pw" style={`flex:${(w.image.width / w.image.height).toFixed(3)} 1 0`}>
+                    <Image
+                      src={w.image}
+                      alt={`${w.title}${w.year ? `, ${w.year}` : ''}`}
+                      widths={[320, 480, 720].filter((x) => x <= w.image.width)}
+                      sizes="(max-width: 760px) 50vw, 22vw"
+                      format="webp"
+                      loading="lazy"
+                    />
+                  </div>
+                ))}
+              </div>
+            </a>
+          );
+        })
+      }
+    </div>
+  </section>
+</Base>
+
+<style>
+  .hero {
+    position: relative;
+    height: 100vh;
+    height: 100svh;
+    min-height: 520px;
+    background: #2b2824;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+  .hero-img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .hero::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, var(--overlay));
+  }
+  .hero-name {
+    position: relative;
+    z-index: 1;
+    padding: 0 24px;
+    text-align: center;
+    font-size: clamp(48px, 8.5vw, 112px);
+    letter-spacing: 0.02em;
+    line-height: 1.05;
+    text-shadow: 0 1px 28px rgba(0, 0, 0, 0.3);
+  }
+  .hero-scroll {
+    position: absolute;
+    z-index: 1;
+    right: var(--gutter);
+    bottom: 28px;
+    font-size: 11px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    opacity: 0.85;
+  }
+  .hero-scroll:hover {
+    opacity: 1;
+    color: inherit;
+  }
+
+  .bio {
+    max-width: 1200px;
+    padding-top: clamp(88px, 11vw, 140px);
+    padding-bottom: clamp(72px, 9vw, 120px);
+  }
+  .bio > .eyebrow {
+    margin-bottom: 48px;
+  }
+  .bio-body::after {
+    content: '';
+    display: table;
+    clear: both;
+  }
+  .bio-photo {
+    float: left;
+    width: 40%;
+    height: auto;
+    margin: 0 56px 32px 0;
+    background: var(--stone);
+  }
+  @media (max-width: 640px) {
+    .bio-photo {
+      float: none;
+      width: 100%;
+      margin: 0 0 32px;
+    }
+  }
+  .prose {
+    font-size: 17px;
+    line-height: 1.75;
+  }
+  .prose :global(h2) {
+    font-size: clamp(32px, 3.6vw, 44px);
+    line-height: 1.15;
+    margin: 0 0 28px;
+  }
+  .prose :global(h3) {
+    font-size: 28px;
+    margin: 36px 0 16px;
+  }
+  .prose :global(p) {
+    margin: 0 0 20px;
+  }
+  .prose :global(a) {
+    border-bottom: 1px solid currentColor;
+  }
+  .prose :global(strong) {
+    font-weight: 500;
+  }
+  .prose :global(ul),
+  .prose :global(ol) {
+    margin: 0 0 20px;
+    padding-left: 1.2em;
+  }
+  .prose :global(li) {
+    margin-bottom: 10px;
+    padding-left: 4px;
+  }
+  .prose :global(li::marker) {
+    color: var(--muted);
+  }
+
+  .cv {
+    clear: both;
+    margin-top: clamp(56px, 7vw, 88px);
+    padding-top: clamp(40px, 5vw, 56px);
+    border-top: 1px solid var(--line);
+  }
+  .cv h3 {
+    font-size: clamp(30px, 3.4vw, 40px);
+    margin-bottom: clamp(28px, 4vw, 44px);
+  }
+  .cv-group + .cv-group {
+    margin-top: 44px;
+  }
+  .cv-group .eyebrow {
+    margin-bottom: 18px;
+  }
+  .cv ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    columns: 2 420px;
+    column-gap: 64px;
+  }
+  .cv li {
+    display: flex;
+    gap: 20px;
+    break-inside: avoid;
+    padding: 10px 0;
+    border-top: 1px solid var(--line);
+    font-size: 15px;
+    line-height: 1.5;
+  }
+  .cv-year {
+    flex: none;
+    width: 44px;
+    font-weight: 400;
+    font-variant-numeric: tabular-nums;
+  }
+  .cv-body em {
+    font-family: var(--serif);
+    font-size: 18px;
+    line-height: 1.3;
+  }
+  .sep {
+    color: var(--muted);
+  }
+  .cv-notes {
+    display: block;
+    margin-top: 2px;
+    font-size: 13px;
+    color: var(--muted);
+  }
+
+  .paintings {
+    border-top: 1px solid var(--line);
+    padding: clamp(80px, 10vw, 120px) 0 clamp(40px, 6vw, 80px);
+  }
+  .sec-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 16px 40px;
+    margin-bottom: clamp(32px, 5vw, 56px);
+  }
+  .sec-head h2 {
+    font-size: clamp(48px, 6vw, 64px);
+    line-height: 1;
+  }
+  .sec-head p {
+    font-size: 14px;
+    color: var(--muted);
+  }
+  .see-all {
+    margin-left: 0.5em;
+    color: var(--ink);
+    border-bottom: 1px solid currentColor;
+    padding-bottom: 1px;
+    white-space: nowrap;
+  }
+  @media (max-width: 640px) {
+    .see-all {
+      display: table;
+      margin: 10px 0 0;
+    }
+  }
+  .see-all:hover {
+    color: var(--ink);
+    opacity: 0.6;
+  }
+  .period {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 32px 56px;
+    padding: clamp(36px, 5vw, 56px) 0;
+    border-top: 1px solid var(--line);
+    color: var(--ink);
+  }
+  .period:last-of-type {
+    border-bottom: 1px solid var(--line);
+  }
+  .period:hover {
+    color: var(--ink);
+  }
+  .period-text {
+    flex: 1 1 240px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 24px;
+  }
+  .period-text .eyebrow {
+    margin-bottom: 12px;
+  }
+  .period h3 {
+    font-size: clamp(32px, 3.4vw, 40px);
+    margin-bottom: 10px;
+  }
+  .years {
+    font-size: 15px;
+    color: var(--muted);
+  }
+  .period .link-line {
+    align-self: flex-start;
+    transition: gap 0.2s ease, opacity 0.2s ease;
+  }
+  .period:hover .link-line {
+    opacity: 0.6;
+  }
+  .period-works {
+    flex: 999 1 560px;
+    min-width: 0;
+    display: flex;
+    gap: clamp(12px, 2vw, 24px);
+    align-items: flex-end;
+  }
+  .pw {
+    min-width: 0;
+    overflow: hidden;
+  }
+  .pw img {
+    width: 100%;
+    background: var(--stone);
+    transition: transform 0.6s ease;
+  }
+  .period:hover .pw img {
+    transform: scale(1.025);
+  }
+</style>

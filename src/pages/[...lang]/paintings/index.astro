@@ -1,0 +1,62 @@
+---
+// Tutte le opere insieme, in un'unica pagina (link "oppure guarda tutte le opere" nella home).
+import Base from '../../../layouts/Base.astro';
+import Zoomable from '../../../components/Zoomable.astro';
+import { href, langPaths, t, type Lang } from '../../../i18n/ui';
+import { allWorks, workMeta, type Painting } from '../../../lib/data';
+
+export const getStaticPaths = langPaths;
+const { lang } = Astro.props as { lang: Lang };
+const works = await allWorks();
+
+// Distribuisce le opere in 4 colonne (1ª, 2ª, 3ª, 4ª, poi di nuovo 1ª…) mantenendo l'ordine di lettura.
+const N = 4;
+const cols: { w: Painting; i: number }[][] = Array.from({ length: N }, () => []);
+works.forEach((w, i) => cols[i % N].push({ w, i }));
+---
+
+<Base lang={lang} path="paintings" title={t(lang, 'allPaintings')}>
+  <div class="wrap">
+    <div class="page-head">
+      <div>
+        <a class="back" href={`${href(lang, '')}#paintings`}>← {t(lang, 'allPeriods')}</a>
+        <h1>{t(lang, 'allPaintings')}</h1>
+      </div>
+      <p>{works.length} {t(lang, 'works')}</p>
+    </div>
+
+    <div class="masonry">
+      {
+        cols.map((col) => (
+          <div class="col">
+            {col.map(({ w, i }) => (
+              <Zoomable
+                src={w.image}
+                alt={`${w.title}${w.year ? `, ${w.year}` : ''}`}
+                gallery="all"
+                index={i}
+                title={w.title}
+                meta={workMeta(w, lang)}
+                caption
+                sizes="(max-width: 760px) 100vw, 25vw"
+                style={`--i:${i}`}
+              />
+            ))}
+          </div>
+        ))
+      }
+    </div>
+  </div>
+</Base>
+
+<style>
+  .back {
+    display: inline-block;
+    margin-bottom: 36px;
+    font-size: 12px;
+    font-weight: 400;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+</style>

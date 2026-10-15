@@ -1,0 +1,59 @@
+---
+import '../styles/global.css';
+import { getImage } from 'astro:assets';
+import Nav from '../components/Nav.astro';
+import Footer from '../components/Footer.astro';
+import Lightbox from '../components/Lightbox.astro';
+import { LANGS, HTML_LANG, DEFAULT_LANG, href, pick, t, type Lang } from '../i18n/ui';
+import { settings, img } from '../lib/data';
+
+interface Props {
+  lang: Lang;
+  /** percorso della pagina senza lingua: '' per la home, 'books', 'paintings/early-works'… */
+  path: string;
+  title?: string;
+  hero?: boolean;
+}
+
+const { lang, path, title, hero = false } = Astro.props;
+const home = await settings('home');
+const NAME = 'Alejandro Juan Ferrante';
+const pageTitle = title ? `${title} — ${NAME}` : NAME;
+const description = pick(home.description, lang) || NAME;
+const ogSrc = img(home.image);
+const og = ogSrc ? await getImage({ src: ogSrc, width: 1200, format: 'jpg' }) : undefined;
+const site = Astro.site ?? new URL(Astro.url.origin);
+const canonical = new URL(href(lang, path), site).href;
+const ogImage = og ? new URL(og.src, site).href : undefined;
+---
+
+<!doctype html>
+<html lang={HTML_LANG[lang]}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{pageTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    {LANGS.map((l) => <link rel="alternate" hreflang={HTML_LANG[l]} href={new URL(href(l, path), site).href} />)}
+    <link rel="alternate" hreflang="x-default" href={new URL(href(DEFAULT_LANG, path), site).href} />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:site_name" content={NAME} />
+    {ogImage && <meta property="og:image" content={ogImage} />}
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="theme-color" content="#161616" />
+  </head>
+  <body>
+    <a class="skip" href="#main">{t(lang, 'skip')}</a>
+    <Nav lang={lang} path={path} hero={hero} />
+    <main id="main">
+      <slot />
+    </main>
+    <Footer lang={lang} path={path} />
+    <Lightbox lang={lang} />
+  </body>
+</html>

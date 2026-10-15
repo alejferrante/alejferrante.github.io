@@ -1,0 +1,24 @@
+---
+import Base from '../../layouts/Base.astro';
+import PhotoGrid from '../../components/PhotoGrid.astro';
+import { langPaths, t, type Lang } from '../../i18n/ui';
+import { pageShown, photoList, settings } from '../../lib/data';
+
+// Se nel pannello la pagina Premi è spenta, non viene creata (e sparisce dal menu).
+export async function getStaticPaths() {
+  return (await pageShown('awards')) ? langPaths() : [];
+}
+const { lang } = Astro.props as { lang: Lang };
+const data = await settings<{ items?: { image?: string; title?: string }[] }>('awards');
+const photos = photoList(data.items, lang);
+---
+
+<Base lang={lang} path="awards" title={t(lang, 'awards')}>
+  <div class="wrap">
+    <div class="page-head">
+      <h1>{t(lang, 'awards')}</h1>
+      {photos.length > 0 && <p>{t(lang, 'photosIntro')}</p>}
+    </div>
+    <PhotoGrid photos={photos} gallery="awards" fallbackAlt={t(lang, 'awards')} />
+  </div>
+</Base>

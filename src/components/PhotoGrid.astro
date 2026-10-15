@@ -1,0 +1,47 @@
+---
+// Griglia di foto con un titolo piccolo sotto ognuna (mostre passate, premi).
+// Cliccando una foto si apre il visualizzatore a schermo intero.
+import Zoomable from './Zoomable.astro';
+import type { Photo } from '../lib/data';
+
+interface Props {
+  photos: Photo[];
+  gallery: string;
+  /** testo alternativo quando una foto non ha titolo */
+  fallbackAlt: string;
+}
+const { photos, gallery, fallbackAlt } = Astro.props;
+const N = 3;
+const cols: { p: Photo; i: number }[][] = Array.from({ length: N }, () => []);
+photos.forEach((p, i) => cols[i % N].push({ p, i }));
+---
+
+{
+  photos.length > 0 && (
+    <div class="masonry photo-grid">
+      {cols.map((col) => (
+        <div class="col">
+          {col.map(({ p, i }) => (
+            <Zoomable
+              src={p.image}
+              alt={p.title || `${fallbackAlt} ${i + 1}`}
+              gallery={gallery}
+              index={i}
+              title={p.title}
+              caption={!!p.title}
+              sizes="(max-width: 760px) 100vw, 33vw"
+              style={`--i:${i}`}
+            />
+          ))}
+        </div>
+      ))}
+    </div>
+  )
+}
+
+<style>
+  .photo-grid :global(.cap-title) {
+    font-size: 18px;
+    margin-top: 12px;
+  }
+</style>

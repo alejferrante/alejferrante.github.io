@@ -1,0 +1,127 @@
+---
+import { Image } from 'astro:assets';
+import Base from '../../layouts/Base.astro';
+import { langPaths, t, type Lang } from '../../i18n/ui';
+import { img, settings } from '../../lib/data';
+
+export const getStaticPaths = langPaths;
+const { lang } = Astro.props as { lang: Lang };
+const data = await settings<{ books?: { cover?: string; title?: string }[] }>('books');
+const books = (data.books ?? []).map((b) => ({ ...b, image: img(b.cover) })).filter((b) => b.image);
+---
+
+<Base lang={lang} path="books" title={t(lang, 'books')}>
+  <div class="wrap">
+    <div class="page-head">
+      <h1>{t(lang, 'books')}</h1>
+      <div class="controls">
+        <p>{t(lang, 'booksIntro')}</p>
+        <button type="button" class="arrow" data-dir="-1" aria-label={t(lang, 'previous')}>
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 4l-8 8 8 8"></path></svg>
+        </button>
+        <button type="button" class="arrow" data-dir="1" aria-label={t(lang, 'next')}>
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 4l8 8-8 8"></path></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="track" data-track tabindex="0" aria-label={t(lang, 'books')}>
+    {
+      books.map((b, i) => (
+        <figure class="book">
+          <Image
+            src={b.image!}
+            alt={b.title || `${t(lang, 'books')} ${i + 1}`}
+            widths={[400, 600, 900].filter((w) => w <= b.image!.width)}
+            sizes="(max-width: 640px) 75vw, 420px"
+            format="webp"
+            loading={i < 3 ? 'eager' : 'lazy'}
+          />
+        </figure>
+      ))
+    }
+  </div>
+</Base>
+
+<style>
+  .controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .controls p {
+    margin-right: 16px;
+  }
+  .arrow {
+    width: 44px;
+    height: 44px;
+    border: 1px solid var(--line);
+    border-radius: 50%;
+    background: transparent;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .arrow:hover {
+    border-color: var(--ink);
+  }
+  .arrow:disabled {
+    opacity: 0.3;
+    cursor: default;
+    border-color: var(--line);
+  }
+  @media (hover: none) {
+    .arrow {
+      display: none;
+    }
+  }
+  .track {
+    display: flex;
+    gap: clamp(24px, 4vw, 56px);
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-behavior: smooth;
+    padding: 8px max(var(--gutter), calc((100vw - var(--wrap)) / 2 + var(--gutter))) 48px;
+    scroll-padding: 0 max(var(--gutter), calc((100vw - var(--wrap)) / 2 + var(--gutter)));
+    scrollbar-width: thin;
+    scrollbar-color: var(--stone) transparent;
+  }
+  .track:focus-visible {
+    outline-offset: -2px;
+  }
+  .book {
+    margin: 0;
+    flex: none;
+    scroll-snap-align: start;
+  }
+  .book img {
+    height: min(560px, 62vh);
+    width: auto;
+    max-width: 80vw;
+    object-fit: contain;
+    box-shadow: 0 18px 40px rgba(22, 22, 22, 0.14);
+    background: var(--stone);
+  }
+</style>
+
+<script>
+  const track = document.querySelector<HTMLElement>('[data-track]');
+  const btns = document.querySelectorAll<HTMLButtonElement>('.arrow');
+  const update = () => {
+    if (!track) return;
+    const max = track.scrollWidth - track.clientWidth - 2;
+    btns.forEach((b) => (b.disabled = b.dataset.dir === '-1' ? track.scrollLeft <= 2 : track.scrollLeft >= max));
+  };
+  btns.forEach((b) =>
+    b.addEventListener('click', () => {
+      if (!track) return;
+      const step = (track.querySelector('.book') as HTMLElement | null)?.offsetWidth ?? 400;
+      track.scrollBy({ left: Number(b.dataset.dir) * (step + 40) });
+    }),
+  );
+  track?.addEventListener('scroll', update, { passive: true });
+  window.addEventListener('resize', update);
+  update();
+</script>
