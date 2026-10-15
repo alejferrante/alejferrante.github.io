@@ -1,9 +1,9 @@
 image: /src/assets/uploads/a-la-deriva.webp
-title: 'A la deriva'
+title: A la deriva
 year: '2015'
-size: '220 × 110 cm'
-technique: 'acrylic-mixed'
+size: 220 × 110 cm
+technique: acrylic-mixed
 technique_other: ''
 sold: true
 period: the-blue-years
-featured: false
+featured: true
