@@ -3,7 +3,7 @@
 #  Indirizzo: https://<tuo-dominio>/admin
 #
 #  Repository GitHub: alejferrante/alejferrante.github.io
-#  Dominio: www.alejandroferrante.it
+#  Dominio: www.ferrantealejandro.com
 # =====================================================================
 
 backend:
@@ -11,7 +11,7 @@ backend:
   repo: alejferrante/alejferrante.github.io
   branch: main
 
-site_url: https://www.alejandroferrante.it
+site_url: https://www.ferrantealejandro.com
 app_title: Alejandro Juan Ferrante — Amministrazione
 logo:
   src: /favicon.svg
